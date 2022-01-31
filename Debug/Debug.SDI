@@ -1,0 +1,189 @@
+,,,;====================================================================
+,,,; Programa utilizado para implementar o nome IFCE em quatro display
+,,,; de 7 seguimentos, com deslocamento do nome
+,,,;
+,,,; Created:   qua jul 17 2013
+,,,; Processor: 80C52
+,,,; Compiler:  ASEM-51 (Proteus)
+,,,; By: John Dayton Chaves Custódio
+,,,;====================================================================
+,,,
+,,,$NOMOD51
+,,,$INCLUDE (80C52.MCU)
+,,,;   80C52 processor definition file
+,,,;   ===============================
+,,,
+,,,P0      DATA    080H
+,,,SP      DATA    081H
+,,,DPL     DATA    082H
+,,,DPH     DATA    083H
+,,,PCON    DATA    087H
+,,,TCON    DATA    088H
+,,,TMOD    DATA    089H
+,,,TL0     DATA    08AH
+,,,TL1     DATA    08BH
+,,,TH0     DATA    08CH
+,,,TH1     DATA    08DH
+,,,P1      DATA    090H
+,,,SCON    DATA    098H
+,,,SBUF    DATA    099H
+,,,P2      DATA    0A0H
+,,,IE      DATA    0A8H
+,,,SADDR   DATA    0A9H
+,,,P3      DATA    0B0H
+,,,IP      DATA    0B8H
+,,,SADEN   DATA    0B9H
+,,,T2CON   DATA    0C8H
+,,,T2MOD   DATA    0C9H
+,,,RCAP2L  DATA    0CAH
+,,,RCAP2H  DATA    0CBH
+,,,TL2     DATA    0CCH
+,,,TH2     DATA    0CDH
+,,,PSW     DATA    0D0H
+,,,ACC     DATA    0E0H
+,,,B       DATA    0F0H
+,,,
+,,,IT0     BIT     088H
+,,,IE0     BIT     089H
+,,,IT1     BIT     08AH
+,,,IE1     BIT     08BH
+,,,TR0     BIT     08CH
+,,,TF0     BIT     08DH
+,,,TR1     BIT     08EH
+,,,TF1     BIT     08FH
+,,,T2      BIT     090H
+,,,T2EX    BIT     091H
+,,,RI      BIT     098H
+,,,TI      BIT     099H
+,,,RB8     BIT     09AH
+,,,TB8     BIT     09BH
+,,,REN     BIT     09CH
+,,,SM2     BIT     09DH
+,,,SM1     BIT     09EH
+,,,SM0     BIT     09FH
+,,,EX0     BIT     0A8H
+,,,ET0     BIT     0A9H
+,,,EX1     BIT     0AAH
+,,,ET1     BIT     0ABH
+,,,ES      BIT     0ACH
+,,,ET2     BIT     0ADH
+,,,EA      BIT     0AFH
+,,,RXD     BIT     0B0H
+,,,TXD     BIT     0B1H
+,,,INT0    BIT     0B2H
+,,,INT1    BIT     0B3H
+,,,T0      BIT     0B4H
+,,,T1      BIT     0B5H
+,,,WR      BIT     0B6H
+,,,RD      BIT     0B7H
+,,,PX0     BIT     0B8H
+,,,PT0     BIT     0B9H
+,,,PX1     BIT     0BAH
+,,,PT1     BIT     0BBH
+,,,PS      BIT     0BCH
+,,,PT2     BIT     0BDH
+,,,CPRL2   BIT     0C8H
+,,,CT2     BIT     0C9H
+,,,TR2     BIT     0CAH
+,,,EXEN2   BIT     0CBH
+,,,TCLK    BIT     0CCH
+,,,RCLK    BIT     0CDH
+,,,EXF2    BIT     0CEH
+,,,TF2     BIT     0CFH
+,,,P       BIT     0D0H
+,,,OV      BIT     0D2H
+,,,RS0     BIT     0D3H
+,,,RS1     BIT     0D4H
+,,,F0      BIT     0D5H
+,,,AC      BIT     0D6H
+,,,CY      BIT     0D7H
+,,,
+,,,RESET   CODE    000H
+,,,EXTI0   CODE    003H
+,,,TIMER0  CODE    00BH
+,,,EXTI1   CODE    013H
+,,,TIMER1  CODE    01BH
+,,,SINT    CODE    023H
+,,,TIMER2  CODE    02BH
+,,,
+,,,;====================================================================
+,,,; DEFINITIONS
+,,,;====================================================================
+,,,
+,,,;====================================================================
+,,,; VARIABLES
+,,,;====================================================================
+,,,
+,,,;====================================================================
+,,,; RESET and INTERRUPT VECTORS
+,,,;====================================================================
+,,,
+,,,      ; Reset Vector
+,,,      ORG   0000h
+0000,02 00 03,,      JMP  INICIO
+,,,
+,,,;====================================================================
+,,,; CODE SEGMENT
+,,,;====================================================================
+,,,
+0003,75 81 2F,INICIO,INICIO: MOV             SP,#2FH                 ;DESLOCAMENTO DA PILHA PARA 2FH
+0006,90 00 57,,                MOV             DPTR,#TABELA    ;MOVE VALORES DA TABELA PARA DPTR
+0009,74 00,NOVO,NOVO:   MOV             A,#0                    ;INICIALIZA REGISTRADOR COM VALOR 0
+000B,78 00,,                MOV             R0,#0
+000D,79 01,,                MOV             R1,#1
+000F,7A 02,,                MOV             R2,#2
+0011,7B 03,,                MOV             R3,#3
+0013,EB,SEGUE,SEGUE:  MOV             A,R3
+0014,93,,                MOVC    A,@A+DPTR       ;VALOR DE DPTR DESLOCADO 3 POSIÇÃO
+0015,11 44,,                ACALL   ENVIA
+0017,EA,,                MOV             A,R2
+0018,93,,                MOVC    A,@A+DPTR       ;VALOR DE DPTR DESLOCADO 2 POSIÇÃO
+0019,11 44,,                ACALL   ENVIA
+001B,E9,,                MOV             A,R1
+001C,93,,                MOVC    A,@A+DPTR       ;VALOR DE DPTR DESLOCADO 1 POSIÇÃO
+001D,11 44,,                ACALL   ENVIA
+001F,E8,,                MOV             A,R0
+0020,93,,                MOVC    A,@A+DPTR       ;ATRIBUI O MESMO VALOR DE DPTR
+0021,11 44,,                ACALL   ENVIA           ;CHAMA ROTINA QUE ENVIA OS VALORES AOS DISPLAYS
+0023,11 2E,,                ACALL   T_05S           ;CHAMA ROTINA DE TEMPO
+0025,0B,,                INC             R3                      ;INICIALIZA O INCREMENTO PARA O DESLOCAMENTO
+0026,0A,,                INC             R2
+0027,09,,                INC             R1
+0028,08,,                INC             R0
+0029,B8 0F E7,,                CJNE    R0,#15,SEGUE    ;REGISTRADOR IGUAL A 8?
+,,,                                                        ;NÃO, ENTÃO DESVIA PARA SEGUE
+002C,01 09,,                AJMP    NOVO            ;SIM, ENTAO DESVIA PARA NOVO
+,,,;--------------------------------------------------------------------
+,,,;ROTINA         T_05S
+002E,75 08 04,T_05S,T_05S:  MOV             08H,#4  ;MOVE O VALOR A DECIMAL PARA O ENDEREÇO DA MEMÓRIA 08H
+0031,11 37,MAIS,MAIS:   ACALL   TEMPO   ;CHAMA A ROTINA TEMPO
+0033,D5 08 FB,,                DJNZ    08H,MAIS        ;DECREMENTA O VALOR DA MEMÓRIA 08H E SALTA SE ZERO, CASO CON
+0036,22,,                RET                     ;RETORNO DA ROTINA
+,,,;--------------------------------------------------------------------
+,,,;ROTINA         TEMPO
+0037,75 09 FA,TEMPO,TEMPO:  MOV             09H,#250        ;CAREGA R0 DO BANCO 1 COM O VALOR DE 250 DECIMAL
+003A,75 0A FA,SEG1,SEG1:   MOV             0AH,#250        ;CAREGA R1 DO BANCO 1 COM O VALOR DE 250 DECIMAL
+003D,D5 0A FD,,                DJNZ    0AH,$           ;ESPERA DECREMENTAR ATÉ ZERAR O VALOR DE 0AH DA MEMÓRIA
+0040,D5 09 F7,,                DJNZ    09H,SEG1        ;SALTA A INSTRUÇÃO SE O VALOR FOR IGUAL A ZERO
+0043,22,,                RET                     ;RETORNO DA ROTINA
+,,,;-------------------------------------------------------------------
+,,,;ROTINA         ENVIA
+0044,7F 08,ENVIA,ENVIA:  MOV             R7,#8           ;ATRIBUI O VALOR DE 8 A R7 PARA PODER ENVIA BIT A BIT PELA C
+0046,A2 E7,REPETE,REPETE: MOV             C,ACC.7         ;MOVE PARA A CARRY O BIT MAIS SIGNIFICATIVO DO ACC
+0048,92 91,,                MOV             P1.1,C          ;ATRIBUI O PINO 1 DA PORTA 1 O VALOR DA CARRY
+004A,D2 90,,                SETB    P1.0            ;SETA O PINO 1 DA PORTA 1, CLOCK
+004C,00,,                NOP                     ;TEMPO NECESSÁRIO PARA O CI 4015 RECONHECER O PULSO
+004D,00,,                NOP
+004E,00,,                NOP
+004F,00,,                NOP
+0050,00,,                NOP
+0051,C2 90,,                CLR             P1.0            ;LIMPA O PINO 1 DA PORTA 1
+0053,23,,                RL              A                       ;ROTACIONA A ESQUERDA O VALOR DO ACUMULADOR
+0054,DF F0,,                DJNZ    R7,REPETE       ;AGUARDA R7 IGUAL A ZERO, OU SEJA, O ENVIO DE TODOS OS 8 BIT
+0056,22,,                RET                     ;RETORNO DA ROTINA
+,,,;--------------------------------------------------------------------
+,,,;CONSTRUÇÃO DA TABELA
+0057,00 00 00 00,TABELA,TABELA: DB      00H,00H,00H,00H,1EH,3FH,76H,54H,00H,5EH,77H,6EH,78H,3FH,54H,00H,00H,00H,00H
+,,,
+,,,;====================================================================
+000E,,,      END

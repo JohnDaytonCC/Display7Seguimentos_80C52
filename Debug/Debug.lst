@@ -1,0 +1,371 @@
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 1
+
+
+
+
+
+       MCS-51 Family Macro Assembler   A S E M - 5 1   V 1.3
+       =====================================================
+
+
+
+	Source File:	..\main.asm
+	Object File:	Debug.HEX
+	List File:	Debug.lst
+
+
+
+ Line  I  Addr  Code            Source
+
+    1:				;====================================================================
+    2:				; Programa utilizado para implementar o nome IFCE em quatro display
+    3:				; de 7 seguimentos, com deslocamento do nome
+    4:				;
+    5:				; Created:   qua jul 17 2013
+    6:				; Processor: 80C52
+    7:				; Compiler:  ASEM-51 (Proteus)
+    8:				; By: John Dayton Chaves Custódio
+    9:				;====================================================================
+   10:
+   11:				$NOMOD51
+   12:				$INCLUDE (80C52.MCU)
+   13: 1			;   80C52 processor definition file
+   14: 1			;   ===============================
+   15: 1
+   16: 1	N	 80	P0	DATA	080H
+   17: 1	N	 81	SP	DATA	081H
+   18: 1	N	 82	DPL	DATA	082H
+   19: 1	N	 83	DPH	DATA	083H
+   20: 1	N	 87	PCON	DATA	087H
+   21: 1	N	 88	TCON	DATA	088H
+   22: 1	N	 89	TMOD	DATA	089H
+   23: 1	N	 8A	TL0	DATA	08AH
+   24: 1	N	 8B	TL1	DATA	08BH
+   25: 1	N	 8C	TH0	DATA	08CH
+   26: 1	N	 8D	TH1	DATA	08DH
+   27: 1	N	 90	P1	DATA	090H
+   28: 1	N	 98	SCON	DATA	098H
+   29: 1	N	 99	SBUF	DATA	099H
+   30: 1	N	 A0	P2	DATA	0A0H
+   31: 1	N	 A8	IE	DATA	0A8H
+   32: 1	N	 A9	SADDR	DATA	0A9H
+   33: 1	N	 B0	P3	DATA	0B0H
+   34: 1	N	 B8	IP	DATA	0B8H
+   35: 1	N	 B9	SADEN	DATA	0B9H
+   36: 1	N	 C8	T2CON	DATA	0C8H
+   37: 1	N	 C9	T2MOD	DATA	0C9H
+   38: 1	N	 CA	RCAP2L	DATA	0CAH
+   39: 1	N	 CB	RCAP2H	DATA	0CBH
+   40: 1	N	 CC	TL2	DATA	0CCH
+   41: 1	N	 CD	TH2	DATA	0CDH
+   42: 1	N	 D0	PSW	DATA	0D0H
+   43: 1	N	 E0	ACC	DATA	0E0H
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 2
+
+
+
+ Line  I  Addr  Code            Source
+
+   44: 1	N	 F0	B	DATA	0F0H
+   45: 1
+   46: 1	N	 88	IT0	BIT	088H
+   47: 1	N	 89	IE0	BIT	089H
+   48: 1	N	 8A	IT1	BIT	08AH
+   49: 1	N	 8B	IE1	BIT	08BH
+   50: 1	N	 8C	TR0	BIT	08CH
+   51: 1	N	 8D	TF0	BIT	08DH
+   52: 1	N	 8E	TR1	BIT	08EH
+   53: 1	N	 8F	TF1	BIT	08FH
+   54: 1	N	 90	T2	BIT	090H
+   55: 1	N	 91	T2EX	BIT	091H
+   56: 1	N	 98	RI	BIT	098H
+   57: 1	N	 99	TI	BIT	099H
+   58: 1	N	 9A	RB8	BIT	09AH
+   59: 1	N	 9B	TB8	BIT	09BH
+   60: 1	N	 9C	REN	BIT	09CH
+   61: 1	N	 9D	SM2	BIT	09DH
+   62: 1	N	 9E	SM1	BIT	09EH
+   63: 1	N	 9F	SM0	BIT	09FH
+   64: 1	N	 A8	EX0	BIT	0A8H
+   65: 1	N	 A9	ET0	BIT	0A9H
+   66: 1	N	 AA	EX1	BIT	0AAH
+   67: 1	N	 AB	ET1	BIT	0ABH
+   68: 1	N	 AC	ES	BIT	0ACH
+   69: 1	N	 AD	ET2	BIT	0ADH
+   70: 1	N	 AF	EA	BIT	0AFH
+   71: 1	N	 B0	RXD	BIT	0B0H
+   72: 1	N	 B1	TXD	BIT	0B1H
+   73: 1	N	 B2	INT0	BIT	0B2H
+   74: 1	N	 B3	INT1	BIT	0B3H
+   75: 1	N	 B4	T0	BIT	0B4H
+   76: 1	N	 B5	T1	BIT	0B5H
+   77: 1	N	 B6	WR	BIT	0B6H
+   78: 1	N	 B7	RD	BIT	0B7H
+   79: 1	N	 B8	PX0	BIT	0B8H
+   80: 1	N	 B9	PT0	BIT	0B9H
+   81: 1	N	 BA	PX1	BIT	0BAH
+   82: 1	N	 BB	PT1	BIT	0BBH
+   83: 1	N	 BC	PS	BIT	0BCH
+   84: 1	N	 BD	PT2	BIT	0BDH
+   85: 1	N	 C8	CPRL2	BIT	0C8H
+   86: 1	N	 C9	CT2	BIT	0C9H
+   87: 1	N	 CA	TR2	BIT	0CAH
+   88: 1	N	 CB	EXEN2	BIT	0CBH
+   89: 1	N	 CC	TCLK	BIT	0CCH
+   90: 1	N	 CD	RCLK	BIT	0CDH
+   91: 1	N	 CE	EXF2	BIT	0CEH
+   92: 1	N	 CF	TF2	BIT	0CFH
+   93: 1	N	 D0	P	BIT	0D0H
+   94: 1	N	 D2	OV	BIT	0D2H
+   95: 1	N	 D3	RS0	BIT	0D3H
+   96: 1	N	 D4	RS1	BIT	0D4H
+   97: 1	N	 D5	F0	BIT	0D5H
+   98: 1	N	 D6	AC	BIT	0D6H
+   99: 1	N	 D7	CY	BIT	0D7H
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 3
+
+
+
+ Line  I  Addr  Code            Source
+
+  100: 1
+  101: 1	N      0000	RESET	CODE	000H
+  102: 1	N      0003	EXTI0	CODE	003H
+  103: 1	N      000B	TIMER0	CODE	00BH
+  104: 1	N      0013	EXTI1	CODE	013H
+  105: 1	N      001B	TIMER1	CODE	01BH
+  106: 1	N      0023	SINT	CODE	023H
+  107: 1	N      002B	TIMER2	CODE	02BH
+  108:
+  109:				;====================================================================
+  110:				; DEFINITIONS
+  111:				;====================================================================
+  112:
+  113:				;====================================================================
+  114:				; VARIABLES
+  115:				;====================================================================
+  116:
+  117:				;====================================================================
+  118:				; RESET and INTERRUPT VECTORS
+  119:				;====================================================================
+  120:
+  121:				      ; Reset Vector
+  122:		N      0000	      ORG   0000h
+  123:	  0000	02 00 03	      JMP  INICIO
+  124:
+  125:				;====================================================================
+  126:				; CODE SEGMENT
+  127:				;====================================================================
+  128:
+  129:	  0003	75 81 2F	INICIO:	MOV		SP,#2FH			;DESLOCAMENTO DA PILHA PARA 2FH
+  130:	  0006	90 00 57			MOV		DPTR,#TABELA	;MOVE VALORES DA TABELA PARA DPTR
+  131:	  0009	74 00		NOVO:	MOV		A,#0			;INICIALIZA REGISTRADOR COM VALOR 0
+  132:	  000B	78 00				MOV		R0,#0
+  133:	  000D	79 01				MOV		R1,#1
+  134:	  000F	7A 02				MOV		R2,#2
+  135:	  0011	7B 03				MOV		R3,#3
+  136:	  0013	EB		SEGUE:	MOV		A,R3
+  137:	  0014	93				MOVC	A,@A+DPTR	;VALOR DE DPTR DESLOCADO 3 POSIÇÃO
+  138:	  0015	11 44				ACALL	ENVIA
+  139:	  0017	EA				MOV		A,R2
+  140:	  0018	93				MOVC	A,@A+DPTR	;VALOR DE DPTR DESLOCADO 2 POSIÇÃO
+  141:	  0019	11 44				ACALL	ENVIA
+  142:	  001B	E9				MOV		A,R1
+  143:	  001C	93				MOVC	A,@A+DPTR	;VALOR DE DPTR DESLOCADO 1 POSIÇÃO
+  144:	  001D	11 44				ACALL	ENVIA
+  145:	  001F	E8				MOV		A,R0
+  146:	  0020	93				MOVC	A,@A+DPTR	;ATRIBUI O MESMO VALOR DE DPTR
+  147:	  0021	11 44				ACALL	ENVIA		;CHAMA ROTINA QUE ENVIA OS VALORES AOS DISPLAYS
+  148:	  0023	11 2E				ACALL	T_05S		;CHAMA ROTINA DE TEMPO
+  149:	  0025	0B				INC		R3			;INICIALIZA O INCREMENTO PARA O DESLOCAMENTO
+				 DO NOME
+  150:	  0026	0A				INC		R2
+  151:	  0027	09				INC		R1
+  152:	  0028	08				INC		R0
+  153:	  0029	B8 0F E7			CJNE	R0,#15,SEGUE	;REGISTRADOR IGUAL A 8?
+  154:											;NÃO, ENTÃO DESVIA PARA SEGUE
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 4
+
+
+
+ Line  I  Addr  Code            Source
+
+  155:	  002C	01 09				AJMP	NOVO		;SIM, ENTAO DESVIA PARA NOVO
+  156:				;--------------------------------------------------------------------
+  157:				;ROTINA		T_05S
+  158:	  002E	75 08 04	T_05S:	MOV		08H,#4	;MOVE O VALOR A DECIMAL PARA O ENDEREÇO DA MEMÓRIA 08H
+  159:	  0031	11 37		MAIS:	ACALL	TEMPO	;CHAMA A ROTINA TEMPO
+  160:	  0033	D5 08 FB			DJNZ	08H,MAIS	;DECREMENTA O VALOR DA MEMÓRIA 08H E SALTA SE ZERO, CASO CON
+				TRÁRIO VAI PARA MAIS
+  161:	  0036	22				RET			;RETORNO DA ROTINA
+  162:				;--------------------------------------------------------------------
+  163:				;ROTINA		TEMPO
+  164:	  0037	75 09 FA	TEMPO:	MOV		09H,#250	;CAREGA R0 DO BANCO 1 COM O VALOR DE 250 DECIMAL
+  165:	  003A	75 0A FA	SEG1:	MOV		0AH,#250	;CAREGA R1 DO BANCO 1 COM O VALOR DE 250 DECIMAL
+  166:	  003D	D5 0A FD			DJNZ	0AH,$		;ESPERA DECREMENTAR ATÉ ZERAR O VALOR DE 0AH DA MEMÓRIA
+  167:	  0040	D5 09 F7			DJNZ	09H,SEG1	;SALTA A INSTRUÇÃO SE O VALOR FOR IGUAL A ZERO
+  168:	  0043	22				RET			;RETORNO DA ROTINA
+  169:				;-------------------------------------------------------------------
+  170:				;ROTINA		ENVIA
+  171:	  0044	7F 08		ENVIA:	MOV		R7,#8		;ATRIBUI O VALOR DE 8 A R7 PARA PODER ENVIA BIT A BIT PELA C
+				ARRY
+  172:	  0046	A2 E7		REPETE:	MOV		C,ACC.7		;MOVE PARA A CARRY O BIT MAIS SIGNIFICATIVO DO ACC
+  173:	  0048	92 91				MOV		P1.1,C		;ATRIBUI O PINO 1 DA PORTA 1 O VALOR DA CARRY
+  174:	  004A	D2 90				SETB	P1.0		;SETA O PINO 1 DA PORTA 1, CLOCK
+  175:	  004C	00				NOP			;TEMPO NECESSÁRIO PARA O CI 4015 RECONHECER O PULSO
+  176:	  004D	00				NOP
+  177:	  004E	00				NOP
+  178:	  004F	00				NOP
+  179:	  0050	00				NOP
+  180:	  0051	C2 90				CLR		P1.0		;LIMPA O PINO 1 DA PORTA 1
+  181:	  0053	23				RL		A			;ROTACIONA A ESQUERDA O VALOR DO ACUMULADOR
+  182:	  0054	DF F0				DJNZ	R7,REPETE	;AGUARDA R7 IGUAL A ZERO, OU SEJA, O ENVIO DE TODOS OS 8 BIT
+				S
+  183:	  0056	22				RET			;RETORNO DA ROTINA
+  184:				;--------------------------------------------------------------------
+  185:				;CONSTRUÇÃO DA TABELA
+  186:	  0057	00 00 00 00	TABELA:	DB	00H,00H,00H,00H,1EH,3FH,76H,54H,00H,5EH,77H,6EH,78H,3FH,54H,00H,00H,00H,00H
+	  005B	1E 3F 76 54
+	  005F	00 5E 77 6E
+	  0063	78 3F 54 00
+	  0067	00 00 00
+  187:
+  188:				;====================================================================
+  189:				      END
+
+
+
+
+
+                     register banks used:  ---
+
+                     no errors
+
+
+
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 5
+
+
+
+
+
+	       L I S T   O F   S Y M B O L S
+	       =============================
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+??ASEM_51			  NUMBER    8051
+??VERSION			  NUMBER    0130
+AC				  BIT	      D6	  98
+ACC				  DATA	      E0	  43
+B				  DATA	      F0	  44
+CPRL2				  BIT	      C8	  85
+CT2				  BIT	      C9	  86
+CY				  BIT	      D7	  99
+DPH				  DATA	      83	  19
+DPL				  DATA	      82	  18
+EA				  BIT	      AF	  70
+ENVIA				  CODE	    0044	 171
+ES				  BIT	      AC	  68
+ET0				  BIT	      A9	  65
+ET1				  BIT	      AB	  67
+ET2				  BIT	      AD	  69
+EX0				  BIT	      A8	  64
+EX1				  BIT	      AA	  66
+EXEN2				  BIT	      CB	  88
+EXF2				  BIT	      CE	  91
+EXTI0				  CODE	    0003	 102
+EXTI1				  CODE	    0013	 104
+F0				  BIT	      D5	  97
+IE				  DATA	      A8	  31
+IE0				  BIT	      89	  47
+IE1				  BIT	      8B	  49
+INICIO				  CODE	    0003	 129
+INT0				  BIT	      B2	  73
+INT1				  BIT	      B3	  74
+IP				  DATA	      B8	  34
+IT0				  BIT	      88	  46
+IT1				  BIT	      8A	  48
+MAIS				  CODE	    0031	 159
+NOVO				  CODE	    0009	 131
+OV				  BIT	      D2	  94
+P				  BIT	      D0	  93
+P0				  DATA	      80	  16
+P1				  DATA	      90	  27
+P2				  DATA	      A0	  30
+P3				  DATA	      B0	  33
+PCON				  DATA	      87	  20
+PS				  BIT	      BC	  83
+PSW				  DATA	      D0	  42
+PT0				  BIT	      B9	  80
+PT1				  BIT	      BB	  82
+PT2				  BIT	      BD	  84
+PX0				  BIT	      B8	  79
+PX1				  BIT	      BA	  81
+RB8				  BIT	      9A	  58
+RCAP2H				  DATA	      CB	  39
+
+ASEM-51 V1.3                                         Copyright (c) 2002 by W.W. Heinz                                         PAGE 6
+
+
+
+SYMBOL				  TYPE     VALUE	LINE
+------------------------------------------------------------
+RCAP2L				  DATA	      CA	  38
+RCLK				  BIT	      CD	  90
+RD				  BIT	      B7	  78
+REN				  BIT	      9C	  60
+REPETE				  CODE	    0046	 172
+RESET				  CODE	    0000	 101
+RI				  BIT	      98	  56
+RS0				  BIT	      D3	  95
+RS1				  BIT	      D4	  96
+RXD				  BIT	      B0	  71
+SADDR				  DATA	      A9	  32
+SADEN				  DATA	      B9	  35
+SBUF				  DATA	      99	  29
+SCON				  DATA	      98	  28
+SEG1				  CODE	    003A	 165
+SEGUE				  CODE	    0013	 136
+SINT				  CODE	    0023	 106
+SM0				  BIT	      9F	  63
+SM1				  BIT	      9E	  62
+SM2				  BIT	      9D	  61
+SP				  DATA	      81	  17
+T0				  BIT	      B4	  75
+T1				  BIT	      B5	  76
+T2				  BIT	      90	  54
+T2CON				  DATA	      C8	  36
+T2EX				  BIT	      91	  55
+T2MOD				  DATA	      C9	  37
+TABELA				  CODE	    0057	 186
+TB8				  BIT	      9B	  59
+TCLK				  BIT	      CC	  89
+TCON				  DATA	      88	  21
+TEMPO				  CODE	    0037	 164
+TF0				  BIT	      8D	  51
+TF1				  BIT	      8F	  53
+TF2				  BIT	      CF	  92
+TH0				  DATA	      8C	  25
+TH1				  DATA	      8D	  26
+TH2				  DATA	      CD	  41
+TI				  BIT	      99	  57
+TIMER0				  CODE	    000B	 103
+TIMER1				  CODE	    001B	 105
+TIMER2				  CODE	    002B	 107
+TL0				  DATA	      8A	  23
+TL1				  DATA	      8B	  24
+TL2				  DATA	      CC	  40
+TMOD				  DATA	      89	  22
+TR0				  BIT	      8C	  50
+TR1				  BIT	      8E	  52
+TR2				  BIT	      CA	  87
+TXD				  BIT	      B1	  72
+T_05S				  CODE	    002E	 158
+WR				  BIT	      B6	  77
